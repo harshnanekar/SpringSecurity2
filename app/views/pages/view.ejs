@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Views</title>
+</head>
+<body>
+    <table border="1px">
+        <tr>
+        <th>Email</th>
+        <th>Name</th>
+        <th>Phone</th>
+        <th colspan="2px">Operations</th>
+    </tr>
+    <% datas.forEach( (res) => { %>
+         <tr>
+            <td><%= res.email %></td>
+            <td><%= res.name %></td>
+            <td><%= res.phone %></td>
+            <td><button data-toggle="modal" data-target="#exampleModalCenter" id="clickbutt" type="button" data-id=<%= res.id %> class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+               Update
+              </button>
+              </td>
+            <td><a id='delete' href="/api/delete/<%= res.id %>" >Delete</a></td>
+         </tr>
+        <% }); %>
+       
+    
+    </table>
+    <div style="transition:linear 1s;" id="modal">
+      <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+             Enter the name: <input id='name' type="text"  /></br>
+             Enter the email: <input id='email' type="text" /></br>
+             Enter the Phone No: <input id='phone' type='text' /></br>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button id='savebutton' type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</body>
+
+<script>
+    //document.getElementById('clickbutt').addEventListener('mouseover',() => {
+        datasending();
+      
+        function datasending(){
+        let dataid ;
+        var obj={};
+     let buttons = document.querySelectorAll('#clickbutt');
+     
+     console.log('butt>>>> ' + buttons );
+     
+     for(let i=0;i < buttons.length;i++){
+ 
+        buttons[i].addEventListener('click',()=>{
+            console.log("button clicked--- ");
+            dataid = buttons[i].getAttribute('data-id');        
+             console.log("data--- " + dataid);
+
+             obj.id = dataid;
+            senddata('/api/update','POST',obj)
+            .then(responseData => {
+             let resobj=  responseData;
+
+             let foremail = document.getElementById('email');
+             let forname = document.getElementById('name');
+             let forphone = document.getElementById('phone');
+             let forid = document.getElementById('savebutton');
+
+             foremail.setAttribute('value',resobj.data[0].email)
+             forname.setAttribute('value',resobj.data[0].name);
+             forphone.setAttribute('value',resobj.data[0].phone);
+             forid.setAttribute('data-click',resobj.data[0].id);
+
+
+
+
+//           let htmldata = `<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+//   <div class="modal-dialog modal-dialog-centered" role="document">
+//     <div class="modal-content">
+//       <div class="modal-header">
+//         <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+//         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+//           <span aria-hidden="true">&times;</span>
+//         </button>
+//       </div>
+//       <div class="modal-body">
+//        Enter the name: <input id='name' type="text" value=${resobj.data[0].name} /></br>
+//        Enter the email: <input id='email' type="text" value=${resobj.data[0].email} /></br>
+//        Enter the Phone No: <input id='phone' type='text' value=${resobj.data[0].phone} /></br>
+//       </div>
+//       <div class="modal-footer">
+//         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+//         <button id='savebutton' data-click= ${resobj.data[0].id} type="button" class="btn btn-primary">Save changes</button>
+//       </div>
+//     </div>
+//   </div>
+// </div>`;             
+
+ // document.getElementById('modal').innerHTML = htmldata;
+  var count=0;
+
+  document.getElementById('savebutton').addEventListener('click', () => {
+    
+       let name = document.getElementById('name').value;
+       let email= document.getElementById('email').value;
+       let phone= document.getElementById('phone').value;   
+
+       console.log(phone + 'phone value');
+
+       console.log("phone---- " + phone);
+       let id=  document.getElementById('savebutton').getAttribute('data-click');
+        
+        var obj={
+         "name": name,
+         "email": email,
+         "phone": phone,
+          "id":id
+        };
+        console.log(obj);
+
+         senddata('/api/updated','POST',obj)
+        .then(responseData => {
+          if(responseData.updateValue === 'success'){
+            alert('Values Updated Successfully');
+              setTimeout(async ()=>{
+                window.location.href = '/api/view';
+              },500);
+               
+          }else{
+            alert('Error, Values not updated')  ;
+          }
+        });
+
+
+
+     });
+      
+            });
+
+        })
+    
+    }
+}
+ 
+
+         function senddata(url,method,obj){
+            console.log("fetch called");
+            return new Promise((resolve,reject) => {
+               const a={
+                method:method,
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body:JSON.stringify(obj),
+
+               }
+               fetch(url,a)
+               .then(response => {
+                     if(!response.ok){
+                      throw new Error('Error Occured');
+                     }
+                     return response.json();
+               })
+               .then(data => {
+                resolve(data);
+               })
+               .catch(error => {
+                reject(error);
+               })
+            });
+         }
+
+    
+</script>
+</html>
